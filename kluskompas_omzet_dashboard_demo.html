@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>KlusKompas Demo</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --card:#ffffff;
+      --muted:#64748b;
+      --text:#0f172a;
+      --line:#e2e8f0;
+      --brand:#ff7a1a;
+      --brand2:#ffb86b;
+      --green:#16a34a;
+      --blue:#2563eb;
+      --soft:#f8fafc;
+      --radius:24px;
+      --shadow:0 20px 50px rgba(15,23,42,.22);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(160deg,#111827,#020617);color:var(--text)}
+    body{display:flex;align-items:center;justify-content:center;padding:16px}
+    .phone{
+      width:390px;max-width:100%;height:844px;max-height:94vh;background:#f1f5f9;border-radius:38px;overflow:hidden;box-shadow:var(--shadow);position:relative;border:8px solid #020617;
+    }
+    .top{
+      background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:24px 20px 18px;border-bottom-left-radius:28px;border-bottom-right-radius:28px;
+    }
+    .status{display:flex;justify-content:space-between;font-size:12px;opacity:.9;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:42px;height:42px;border-radius:14px;background:white;color:var(--brand);display:grid;place-items:center;font-weight:900;font-size:22px}
+    .brand h1{font-size:24px;margin:0}
+    .brand p{font-size:13px;margin:2px 0 0;opacity:.95}
+    .content{height:calc(100% - 130px);overflow:auto;padding:16px 16px 96px}
+    .screen{display:none;animation:fade .18s ease}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:.45;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:white;border-radius:var(--radius);padding:16px;margin:12px 0;box-shadow:0 8px 22px rgba(15,23,42,.08);border:1px solid rgba(226,232,240,.8)}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .pill{display:inline-flex;align-items:center;gap:6px;background:#fff7ed;color:#9a3412;border-radius:99px;padding:8px 11px;font-size:12px;font-weight:700}
+    .pill.blue{background:#eff6ff;color:#1d4ed8}
+    .pill.green{background:#f0fdf4;color:#15803d}
+    .muted{color:var(--muted);font-size:13px}
+    h2{margin:8px 0 6px;font-size:23px}
+    h3{margin:0 0 10px;font-size:17px}
+    .big{
+      width:100%;border:none;border-radius:18px;background:linear-gradient(135deg,var(--brand),#fb923c);color:white;font-weight:800;font-size:17px;padding:17px 16px;margin:10px 0;box-shadow:0 12px 24px rgba(249,115,22,.28);cursor:pointer;
+    }
+    .big:active,.secondary:active,.navbtn:active,.day:active,.slot:active{transform:scale(.98)}
+    .secondary{width:100%;border:none;border-radius:18px;background:white;color:#111827;font-weight:750;font-size:15px;padding:15px;margin:8px 0;box-shadow:0 6px 16px rgba(15,23,42,.08);cursor:pointer}
+    .ghost{background:#e2e8f0;box-shadow:none}
+    input,select,textarea{
+      width:100%;border:1px solid var(--line);border-radius:16px;padding:14px 13px;font-size:16px;background:white;margin:6px 0 12px;outline:none;
+    }
+    label{font-size:13px;color:#475569;font-weight:700}
+    textarea{min-height:84px;resize:none}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .price{font-size:34px;font-weight:900;letter-spacing:-1px;margin:4px 0;color:#0f172a}
+    .metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+    .metric{background:white;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(15,23,42,.08);border:1px solid rgba(226,232,240,.8)}
+    .metric span{display:block;font-size:12px;color:#64748b;font-weight:800;margin-bottom:6px}
+    .metric strong{display:block;font-size:24px;letter-spacing:-.5px}
+    .barwrap{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:8px}
+    .bar{height:100%;background:linear-gradient(135deg,#fb923c,#ea580c);border-radius:99px}
+    .moneyrow{display:grid;grid-template-columns:72px 1fr 78px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid #f1f5f9}
+    .moneyrow:last-child{border-bottom:none}
+    .tag{border-radius:99px;padding:6px 8px;font-size:11px;font-weight:900;text-align:center;background:#f1f5f9;color:#475569}
+    .tag.done{background:#dcfce7;color:#166534}
+    .tag.plan{background:#dbeafe;color:#1d4ed8}
+    .tag.open{background:#ffedd5;color:#c2410c}
+    .line{height:1px;background:var(--line);margin:14px 0}
+    .list{padding:0;margin:0;list-style:none}
+    .list li{padding:11px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;gap:10px}
+    .list li:last-child{border-bottom:none}
+    .bottomnav{
+      position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);display:grid;grid-template-columns:repeat(5,1fr);padding:10px 8px 14px;border-top:1px solid var(--line)
+    }
+    .navbtn{border:none;background:transparent;border-radius:14px;padding:8px 4px;font-size:11px;color:#64748b;font-weight:750;cursor:pointer}
+    .navbtn span{display:block;font-size:21px;margin-bottom:2px}
+    .navbtn.active{background:#fff7ed;color:#ea580c}
+    .toast{
+      position:absolute;left:18px;right:18px;bottom:88px;background:#0f172a;color:white;padding:14px 16px;border-radius:18px;font-size:14px;display:none;box-shadow:0 12px 26px rgba(15,23,42,.28);z-index:20;
+    }
+    .toast.show{display:block;animation:toast .22s ease}
+    @keyframes toast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .invoice{
+      background:white;border-radius:18px;padding:16px;border:1px solid #e5e7eb;font-family:Arial,sans-serif
+    }
+    .invoice-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:12px}
+    .material-item{display:grid;grid-template-columns:1fr 78px;gap:8px;align-items:center}
+    .material-item input{margin:0;padding:11px}
+
+    /* Agenda */
+    .weekstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+    .day{border:none;border-radius:18px;background:white;padding:12px 4px;text-align:center;box-shadow:0 6px 15px rgba(15,23,42,.07);cursor:pointer;color:#334155}
+    .day strong{display:block;font-size:18px;color:#0f172a;margin-top:2px}
+    .day.active{background:#0f172a;color:white}
+    .day.active strong{color:white}
+    .timeline{position:relative;margin-top:8px}
+    .timeblock{display:grid;grid-template-columns:48px 1fr;gap:10px;min-height:74px;border-bottom:1px solid #e2e8f0;padding:9px 0}
+    .time{font-size:12px;color:#64748b;padding-top:4px}
+    .jobcard{border-radius:18px;padding:12px 13px;color:white;box-shadow:0 10px 20px rgba(15,23,42,.12);margin-bottom:8px}
+    .jobcard.orange{background:linear-gradient(135deg,#fb923c,#ea580c)}
+    .jobcard.blue{background:linear-gradient(135deg,#60a5fa,#2563eb)}
+    .jobcard.green{background:linear-gradient(135deg,#4ade80,#16a34a)}
+    .jobcard.gray{background:#e2e8f0;color:#475569;box-shadow:none;border:1px dashed #cbd5e1}
+    .jobcard b{font-size:14px}
+    .jobcard span{display:block;font-size:12px;opacity:.9;margin-top:3px}
+    .slotgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+    .slot{border:1px solid #e2e8f0;border-radius:16px;background:white;padding:12px;font-weight:800;cursor:pointer;text-align:center}
+    .slot.active{border-color:#fb923c;background:#fff7ed;color:#c2410c}
+    .mini-calendar{background:#f8fafc;border-radius:18px;padding:12px;margin:10px 0}
+    .calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center;font-size:12px}
+    .calgrid div{padding:7px 0;border-radius:10px}
+    .calgrid .on{background:#0f172a;color:white;font-weight:900}
+    .calgrid .busy{background:#ffedd5;color:#c2410c;font-weight:800}
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="top">
+      <div class="status"><span>09:41</span><span>5G  🔋</span></div>
+      <div class="brand">
+        <div class="logo">K</div>
+        <div>
+          <h1>KlusKompas</h1>
+          <p>Slim calculeren voor vakmannen</p>
+        </div>
+      </div>
+    </div>
+
+    <main class="content">
+      <section id="home" class="screen active">
+        <div class="row">
+          <div>
+            <h2>Vandaag</h2>
+            <div class="muted">Snel overzicht van je werk</div>
+          </div>
+          <div class="pill">Live demo</div>
+        </div>
+
+        <button class="big" onclick="go('newjob')">+ Nieuwe klus berekenen</button>
+        <button class="secondary" onclick="go('finance')">💰 Bekijk omzet</button>
+        <button class="secondary" onclick="go('planning')">📅 Open agenda</button>
+
+        <div class="card">
+          <h3>Planning vandaag</h3>
+          <ul class="list">
+            <li><span>10:00 Overkapping Jansen</span><strong>€3.450</strong></li>
+            <li><span>14:30 Kozijn De Vries</span><strong>€890</strong></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Laatste berekeningen</h3>
+          <ul class="list">
+            <li><span>Schutting 12 meter</span><strong>€2.650</strong></li>
+            <li><span>Wand plaatsen</span><strong>€780</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="newjob" class="screen">
+        <h2>Nieuwe klus</h2>
+        <div class="card">
+          <label>Type klus</label>
+          <select id="jobType">
+            <option value="Overkapping">Overkapping</option>
+            <option value="Kozijn vervangen">Kozijn vervangen</option>
+            <option value="Binnenwand plaatsen">Binnenwand plaatsen</option>
+            <option value="Schutting plaatsen">Schutting plaatsen</option>
+          </select>
+
+          <div class="grid">
+            <div>
+              <label>Lengte meter</label>
+              <input id="length" type="number" value="4" inputmode="decimal">
+            </div>
+            <div>
+              <label>Breedte meter</label>
+              <input id="width" type="number" value="3" inputmode="decimal">
+            </div>
+          </div>
+
+          <label>Materiaal</label>
+          <select id="material">
+            <option>Douglas hout</option>
+            <option>Vurenhout</option>
+            <option>Hardhout</option>
+            <option>Plaatmateriaal</option>
+          </select>
+
+          <label>Extra notitie</label>
+          <textarea id="note">Inclusief plaatsen en kleinmateriaal</textarea>
+
+          <button class="big" onclick="calculate()">Bereken prijs</button>
+          <button class="secondary ghost" onclick="demoVoice()">🎙️ Spreek klus in</button>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <h2>Calculatie</h2>
+        <div class="card">
+          <div class="muted" id="resultTitle">Overkapping 4 x 3 meter</div>
+          <div class="price" id="price">€3.450</div>
+          <div class="row">
+            <span class="pill">Marge 22%</span>
+            <span class="pill green">2 tot 3 dagen</span>
+          </div>
+          <div class="line"></div>
+          <h3>Materiaallijst</h3>
+          <ul class="list" id="materialsOut"></ul>
+          <button class="big" onclick="go('scheduleJob')">📅 Inplannen in agenda</button>
+          <button class="secondary" onclick="whatsapp()">📲 Stuur prijs via WhatsApp</button>
+          <button class="secondary" onclick="emailQuote()">✉️ Stuur per e-mail</button>
+          <button class="secondary" onclick="makeInvoice()">🧾 Maak factuur</button>
+        </div>
+      </section>
+
+      <section id="scheduleJob" class="screen">
+        <h2>Klus inplannen</h2>
+        <div class="card">
+          <div class="muted">Plan deze klus direct in je agenda</div>
+          <h3 id="scheduleTitle">Overkapping</h3>
+
+          <label>Klantnaam</label>
+          <input id="scheduleCustomer" value="Jansen">
+
+          <label>Datum</label>
+          <input id="scheduleDate" type="date">
+
+          <label>Duur</label>
+          <select id="scheduleDuration">
+            <option value="halve dag">Halve dag</option>
+            <option value="1 dag">1 dag</option>
+            <option value="2 dagen" selected>2 dagen</option>
+            <option value="3 dagen">3 dagen</option>
+          </select>
+
+          <label>Tijdblok</label>
+          <div class="slotgrid">
+            <button class="slot active" onclick="selectSlot(this,'08:00')">08:00</button>
+            <button class="slot" onclick="selectSlot(this,'10:00')">10:00</button>
+            <button class="slot" onclick="selectSlot(this,'13:00')">13:00</button>
+            <button class="slot" onclick="selectSlot(this,'15:00')">15:00</button>
+          </div>
+
+          <button class="big" onclick="saveSchedule()">Zet in agenda</button>
+          <button class="secondary ghost" onclick="go('planning')">Bekijk agenda</button>
+        </div>
+      </section>
+
+      <section id="finance" class="screen">
+        <div class="row">
+          <div>
+            <h2>Omzet dashboard</h2>
+            <div class="muted">Verdiend en verwacht op basis van je klussen</div>
+          </div>
+          <span class="pill green">April</span>
+        </div>
+
+        <div class="metricgrid">
+          <div class="metric">
+            <span>Verdiend deze maand</span>
+            <strong id="earnedThisMonth">€7.230</strong>
+          </div>
+          <div class="metric">
+            <span>Komende 30 dagen</span>
+            <strong id="futureRevenue">€9.840</strong>
+          </div>
+          <div class="metric">
+            <span>Open offertes</span>
+            <strong id="openQuotes">€4.150</strong>
+          </div>
+          <div class="metric">
+            <span>Gemiddelde klus</span>
+            <strong id="avgJob">€1.806</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h3>Maanddoel</h3>
+            <strong>72%</strong>
+          </div>
+          <div class="muted">€7.230 van €10.000 doel behaald</div>
+          <div class="barwrap"><div class="bar" style="width:72%"></div></div>
+        </div>
+
+        <div class="card">
+          <h3>Afgelopen periode</h3>
+          <div class="moneyrow">
+            <span class="tag done">Klaar</span>
+            <span>Overkapping Jansen</span>
+            <strong>€3.450</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag done">Klaar</span>
+            <span>Kozijn De Vries</span>
+            <strong>€890</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag done">Klaar</span>
+            <span>Schutting Bakker</span>
+            <strong>€2.650</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag done">Klaar</span>
+            <span>Wand plaatsen</span>
+            <strong>€780</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Komende periode</h3>
+          <div class="moneyrow">
+            <span class="tag plan">Gepland</span>
+            <span>Overkapping Jansen, dag 2</span>
+            <strong>€1.700</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag plan">Gepland</span>
+            <span>Schutting Bakker</span>
+            <strong>€2.650</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag open">Offerte</span>
+            <span>Binnenwand nieuwe klant</span>
+            <strong>€780</strong>
+          </div>
+          <div class="moneyrow">
+            <span class="tag open">Offerte</span>
+            <span>Overkapping optie</span>
+            <strong>€3.370</strong>
+          </div>
+        </div>
+
+        <button class="big" onclick="go('newjob')">+ Nieuwe klus berekenen</button>
+      </section>
+
+      <section id="materials" class="screen">
+        <h2>Prijslijsten</h2>
+
+        <div class="card">
+          <div class="row">
+            <div>
+              <h3>Uurprijzen per klus</h3>
+              <div class="muted">Deze tarieven gebruikt de calculatie voor arbeid.</div>
+            </div>
+            <span class="pill green">Persoonlijk</span>
+          </div>
+          <div class="line"></div>
+
+          <div class="material-item">
+            <label>Overkapping plaatsen</label><input id="rateOverkapping" value="55" inputmode="decimal">
+          </div>
+          <div class="material-item">
+            <label>Kozijn vervangen</label><input id="rateKozijn" value="60" inputmode="decimal">
+          </div>
+          <div class="material-item">
+            <label>Binnenwand plaatsen</label><input id="rateWand" value="50" inputmode="decimal">
+          </div>
+          <div class="material-item">
+            <label>Schutting plaatsen</label><input id="rateSchutting" value="52" inputmode="decimal">
+          </div>
+
+          <button class="secondary" onclick="addLaborRate()">+ Uurprijs toevoegen</button>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <div>
+              <h3>Materiaalprijzen</h3>
+              <div class="muted">Eigen inkoopprijzen, bijvoorbeeld Jongeneel of bouwmarkt.</div>
+            </div>
+            <span class="pill blue">Eigen lijst</span>
+          </div>
+          <div class="line"></div>
+
+          <div id="materialPriceList">
+            <div class="material-item">
+              <label>Douglas paal 15x15</label><input id="matPaal" value="45" inputmode="decimal">
+            </div>
+            <div class="material-item">
+              <label>Balk 50x150 per meter</label><input id="matBalk" value="8" inputmode="decimal">
+            </div>
+            <div class="material-item">
+              <label>Dakplaat per m2</label><input id="matDakplaat" value="29" inputmode="decimal">
+            </div>
+            <div class="material-item">
+              <label>Schroeven doos</label><input id="matSchroeven" value="24" inputmode="decimal">
+            </div>
+            <div class="material-item">
+              <label>Kleinmateriaal percentage</label><input id="matKlein" value="8" inputmode="decimal">
+            </div>
+          </div>
+
+          <button class="big" onclick="savePrices()">Prijslijsten opslaan</button>
+          <button class="secondary" onclick="addMaterialRow()">+ Materiaal toevoegen</button>
+          <button class="secondary ghost" onclick="raisePrices()">Alles +10% verhogen</button>
+        </div>
+      </section>
+
+      <section id="planning" class="screen">
+        <div class="row">
+          <div>
+            <h2>Agenda</h2>
+            <div class="muted">Weekplanning en vrije momenten</div>
+          </div>
+          <button class="secondary" style="width:auto;padding:12px 14px;margin:0" onclick="go('scheduleJob')">+ Plan</button>
+        </div>
+
+        <div class="weekstrip">
+          <button class="day active" onclick="selectDay(this,'Maandag')">Ma<strong>24</strong></button>
+          <button class="day" onclick="selectDay(this,'Dinsdag')">Di<strong>25</strong></button>
+          <button class="day" onclick="selectDay(this,'Woensdag')">Wo<strong>26</strong></button>
+          <button class="day" onclick="selectDay(this,'Donderdag')">Do<strong>27</strong></button>
+          <button class="day" onclick="selectDay(this,'Vrijdag')">Vr<strong>28</strong></button>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h3 id="agendaDayTitle">Maandag 24</h3>
+            <span class="pill blue" id="agendaStatus">2 klussen</span>
+          </div>
+          <div class="timeline" id="agendaTimeline"></div>
+        </div>
+
+        <div class="card">
+          <h3>Maandoverzicht</h3>
+          <div class="mini-calendar">
+            <div class="calendar-head">
+              <strong>April 2026</strong>
+              <span class="muted">Oranje = bezet</span>
+            </div>
+            <div class="calgrid">
+              <div>Ma</div><div>Di</div><div>Wo</div><div>Do</div><div>Vr</div><div>Za</div><div>Zo</div>
+              <div></div><div></div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
+              <div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+              <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div>
+              <div>20</div><div>21</div><div>22</div><div>23</div><div class="on">24</div><div class="busy">25</div><div>26</div>
+              <div class="busy">27</div><div>28</div><div>29</div><div>30</div><div></div><div></div><div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="invoice" class="screen">
+        <h2>Factuur</h2>
+        <div class="invoice">
+          <div class="invoice-head">
+            <div>
+              <strong style="font-size:20px">Timmerbedrijf Jansen</strong><br>
+              <span class="muted">Vakwerk in hout</span>
+            </div>
+            <div style="text-align:right">
+              <strong>FACTUUR</strong><br>
+              <span class="muted">2026-001</span>
+            </div>
+          </div>
+          <div class="row"><span>Klant</span><strong contenteditable="true">Klantnaam</strong></div>
+          <div class="row"><span>Datum</span><strong id="date"></strong></div>
+          <div class="line"></div>
+          <div class="row"><span id="invoiceDesc">Overkapping inclusief plaatsing</span><strong id="invoiceAmount">€3.450</strong></div>
+          <div class="line"></div>
+          <div class="row" style="font-size:20px"><strong>Totaal</strong><strong id="invoiceTotal">€3.450</strong></div>
+        </div>
+        <button class="big" onclick="toast('PDF download gestart, demo')">Download PDF</button>
+        <button class="secondary" onclick="whatsappInvoice()">📲 Stuur via WhatsApp</button>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <nav class="bottomnav">
+      <button class="navbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Home</button>
+      <button class="navbtn" data-target="finance" onclick="go('finance')"><span>💰</span>Omzet</button>
+      <button class="navbtn" data-target="newjob" onclick="go('newjob')"><span>➕</span>Klus</button>
+      <button class="navbtn" data-target="materials" onclick="go('materials')"><span>📦</span>Prijzen</button>
+      <button class="navbtn" data-target="planning" onclick="go('planning')"><span>📅</span>Agenda</button>
+    </nav>
+  </div>
+
+<script>
+let selectedSlot = "08:00";
+let selectedDay = "Maandag";
+let last = {
+  type: "Overkapping",
+  length: 4,
+  width: 3,
+  price: 3450
+};
+
+let agenda = {
+  "Maandag": [
+    {time:"08:00", title:"Overkapping Jansen", sub:"2 dagen, materiaal meenemen", color:"orange"},
+    {time:"14:30", title:"Kozijn De Vries", sub:"Inmeten en prijs bespreken", color:"blue"}
+  ],
+  "Dinsdag": [
+    {time:"08:00", title:"Overkapping Jansen", sub:"Dag 2 afwerken", color:"orange"}
+  ],
+  "Woensdag": [
+    {time:"10:00", title:"Vrij blok", sub:"Nieuwe klus mogelijk", color:"gray"}
+  ],
+  "Donderdag": [
+    {time:"08:00", title:"Schutting Bakker", sub:"12 meter, Douglas hout", color:"green"}
+  ],
+  "Vrijdag": [
+    {time:"08:00", title:"Vrij blok", sub:"Nieuwe klus mogelijk", color:"gray"}
+  ]
+};
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b => {
+    b.classList.toggle('active', b.dataset.target === id);
+  });
+  if(id === "planning") renderAgenda();
+}
+
+function euro(n){
+  return "€" + Number(n).toLocaleString("nl-NL");
+}
+
+function val(id, fallback){
+  const el = document.getElementById(id);
+  if(!el) return fallback;
+  const n = parseFloat(String(el.value).replace(",", "."));
+  return isNaN(n) ? fallback : n;
+}
+
+function getRate(type){
+  if(type === "Overkapping") return val("rateOverkapping", 55);
+  if(type === "Kozijn vervangen") return val("rateKozijn", 60);
+  if(type === "Binnenwand plaatsen") return val("rateWand", 50);
+  if(type === "Schutting plaatsen") return val("rateSchutting", 52);
+  return 55;
+}
+
+function calculate(){
+  const type = document.getElementById('jobType').value;
+  const l = parseFloat(document.getElementById('length').value || 1);
+  const w = parseFloat(document.getElementById('width').value || 1);
+
+  const paal = val("matPaal",45);
+  const balk = val("matBalk",8);
+  const dakplaat = val("matDakplaat",29);
+  const schroeven = val("matSchroeven",24);
+  const kleinPct = val("matKlein",8) / 100;
+  const uurprijs = getRate(type);
+
+  let uren = 0;
+  let materiaal = 0;
+  let mats = [];
+
+  if(type === "Overkapping"){
+    uren = Math.max(14, Math.round(l * w * 1.35));
+    materiaal = (6 * paal) + (Math.round(l*w*1.7) * balk) + (l*w*dakplaat) + schroeven;
+    mats = [
+      ["Douglas palen", "6 stuks x " + euro(paal)],
+      ["Balken en regels", Math.round(l*w*1.7) + " meter x " + euro(balk)],
+      ["Dakplaten", Math.round(l*w) + " m2 x " + euro(dakplaat)],
+      ["Schroeven", "1 doos x " + euro(schroeven)]
+    ];
+  }
+
+  if(type === "Kozijn vervangen"){
+    uren = 6;
+    materiaal = 520 + schroeven;
+    mats = [
+      ["Kozijn en glas", euro(520)],
+      ["Bevestigingsmateriaal", euro(schroeven)]
+    ];
+  }
+
+  if(type === "Binnenwand plaatsen"){
+    uren = Math.max(5, Math.round(l * 1.4));
+    materiaal = (l * 65) + schroeven;
+    mats = [
+      ["Regels en platen", Math.round(l) + " meter wand"],
+      ["Schroeven en kit", euro(schroeven)]
+    ];
+  }
+
+  if(type === "Schutting plaatsen"){
+    uren = Math.max(6, Math.round(l * 0.9));
+    materiaal = (l * 115) + schroeven;
+    mats = [
+      ["Schuttingdelen en palen", Math.round(l) + " meter"],
+      ["Bevestigingsmateriaal", euro(schroeven)]
+    ];
+  }
+
+  const arbeid = uren * uurprijs;
+  const kleinmateriaal = materiaal * kleinPct;
+  const subtotal = materiaal + kleinmateriaal + arbeid;
+  const marge = subtotal * 0.22;
+  const price = Math.round((subtotal + marge) / 10) * 10;
+
+  last = {type:type, length:l, width:w, price:price, hours:uren, laborRate:uurprijs, materialCost:materiaal};
+
+  document.getElementById('resultTitle').textContent = type + " " + l + " x " + w + " meter";
+  document.getElementById('price').textContent = euro(price);
+  document.getElementById('scheduleTitle').textContent = type + " plannen";
+
+  mats.push(["Arbeid", uren + " uur x " + euro(uurprijs)]);
+  mats.push(["Kleinmateriaal", Math.round(kleinPct*100) + "%"]);
+  mats.push(["Marge", "22%"]);
+
+  document.getElementById('materialsOut').innerHTML = mats.map(m => "<li><span>"+m[0]+"</span><strong>"+m[1]+"</strong></li>").join("");
+  go('result');
+}
+
+function whatsapp(){
+  const text = encodeURIComponent("Hoi, voor de " + last.type.toLowerCase() + " kom ik uit op ongeveer " + euro(last.price) + ". Dit is inclusief materiaal en plaatsing. Zal ik hem voor je inplannen?");
+  window.open("https://wa.me/?text=" + text, "_blank");
+  toast("WhatsApp geopend met kant en klaar bericht");
+}
+
+function whatsappInvoice(){
+  const text = encodeURIComponent("Hoi, hierbij de factuur voor de klus: " + euro(last.price) + ". Groet!");
+  window.open("https://wa.me/?text=" + text, "_blank");
+}
+
+function emailQuote(){
+  const subject = encodeURIComponent("Prijsindicatie " + last.type);
+  const body = encodeURIComponent("Hoi,\n\nVoor de " + last.type.toLowerCase() + " kom ik uit op ongeveer " + euro(last.price) + ".\n\nGroet");
+  window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+  toast("E-mail geopend");
+}
+
+function makeInvoice(){
+  document.getElementById('invoiceDesc').textContent = last.type + " inclusief materiaal en plaatsing";
+  document.getElementById('invoiceAmount').textContent = euro(last.price);
+  document.getElementById('invoiceTotal').textContent = euro(last.price);
+  
+function savePrices(){
+  toast("Uurprijzen en materiaalprijzen opgeslagen");
+}
+
+function addLaborRate(){
+  toast("Nieuwe uurprijs toegevoegd, demo");
+}
+
+function addMaterialRow(){
+  const wrap = document.getElementById("materialPriceList");
+  const div = document.createElement("div");
+  div.className = "material-item";
+  div.innerHTML = '<label contenteditable="true">Nieuw materiaal</label><input value="0" inputmode="decimal">';
+  wrap.appendChild(div);
+  toast("Materiaal toegevoegd");
+}
+
+function raisePrices(){
+  document.querySelectorAll("#materialPriceList input").forEach(inp => {
+    const n = parseFloat(String(inp.value).replace(",", "."));
+    if(!isNaN(n)) inp.value = Math.round(n * 1.10 * 100) / 100;
+  });
+  toast("Materiaalprijzen met 10% verhoogd");
+}
+
+
+document.getElementById('date').textContent = new Date().toLocaleDateString("nl-NL");
+  go('invoice');
+}
+
+function demoVoice(){
+  document.getElementById('note').value = "Ingesproken: overkapping vier bij drie, Douglas hout, inclusief plaatsen";
+  toast("Spraak demo ingevuld");
+}
+
+function selectSlot(el, slot){
+  selectedSlot = slot;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function saveSchedule(){
+  const customer = document.getElementById('scheduleCustomer').value || "Nieuwe klant";
+  const duration = document.getElementById('scheduleDuration').value;
+  agenda[selectedDay].push({
+    time:selectedSlot,
+    title:last.type + " " + customer,
+    sub:duration + ", " + euro(last.price),
+    color:"orange"
+  });
+  document.getElementById("futureRevenue").textContent = euro(9840 + last.price);
+  toast("Klus toegevoegd aan agenda en omzetprognose");
+  go('planning');
+}
+
+function selectDay(el, day){
+  selectedDay = day;
+  document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  renderAgenda();
+}
+
+function renderAgenda(){
+  const names = {"Maandag":"Maandag 24","Dinsdag":"Dinsdag 25","Woensdag":"Woensdag 26","Donderdag":"Donderdag 27","Vrijdag":"Vrijdag 28"};
+  document.getElementById('agendaDayTitle').textContent = names[selectedDay] || selectedDay;
+  const jobs = agenda[selectedDay] || [];
+  const realJobs = jobs.filter(j => j.color !== "gray").length;
+  document.getElementById('agendaStatus').textContent = realJobs === 1 ? "1 klus" : realJobs + " klussen";
+
+  const blocks = ["08:00","10:00","13:00","15:00"];
+  let html = "";
+  blocks.forEach(time => {
+    const found = jobs.filter(j => j.time === time);
+    html += '<div class="timeblock"><div class="time">'+time+'</div><div>';
+    if(found.length){
+      html += found.map(j => '<div class="jobcard '+j.color+'"><b>'+j.title+'</b><span>'+j.sub+'</span></div>').join("");
+    } else {
+      html += '<div class="jobcard gray"><b>Vrij</b><span>Klus kan hier ingepland worden</span></div>';
+    }
+    html += '</div></div>';
+  });
+  document.getElementById('agendaTimeline').innerHTML = html;
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+
+function savePrices(){
+  toast("Uurprijzen en materiaalprijzen opgeslagen");
+}
+
+function addLaborRate(){
+  toast("Nieuwe uurprijs toegevoegd, demo");
+}
+
+function addMaterialRow(){
+  const wrap = document.getElementById("materialPriceList");
+  const div = document.createElement("div");
+  div.className = "material-item";
+  div.innerHTML = '<label contenteditable="true">Nieuw materiaal</label><input value="0" inputmode="decimal">';
+  wrap.appendChild(div);
+  toast("Materiaal toegevoegd");
+}
+
+function raisePrices(){
+  document.querySelectorAll("#materialPriceList input").forEach(inp => {
+    const n = parseFloat(String(inp.value).replace(",", "."));
+    if(!isNaN(n)) inp.value = Math.round(n * 1.10 * 100) / 100;
+  });
+  toast("Materiaalprijzen met 10% verhoogd");
+}
+
+
+document.getElementById('date').textContent = new Date().toLocaleDateString("nl-NL");
+document.getElementById('scheduleDate').value = "2026-04-24";
+renderAgenda();
+</script>
+</body>
+</html>
